@@ -208,41 +208,29 @@
   </div>
 
   <script>
-  const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxfLF1q9IYBxlsVp47KuBUwQE2dED8QIY8ggIT-f-kfd1z_HwQD7rX7IawxT9Xyau2f/exec'; // Substitua pelo seu Web App ID
+  const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxfLF1q9IYBxlsVp47KuBUwQE2dED8QIY8ggIT-f-kfd1z_HwQD7rX7IawxT9Xyau2f/exec';
+
+  document.getElementById('descricaoOcorrencia').addEventListener('change', (e) => {
+    const dataRetornoGroup = document.getElementById('dataRetornoGroup');
+    dataRetornoGroup.style.display = e.target.value === 'SUSPENSÃO' ? 'block' : 'none';
+  });
 
   document.getElementById('ocorrenciaForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-
     const form = e.target;
-    const formData = {
-      nomeAluno: form.nomeAluno.value,
-      anoSerie: form.anoSerie.value,
-      professor: form.professor.value,
-      ra: form.ra.value,
-      disciplina: form.disciplina.value,
-      descricao: form.descricao.value,
-      descricaoOcorrencia: form.descricaoOcorrencia.value,
-      dataRegistro: form.dataRegistro.value,
-      dataRetorno: form.dataRetorno ? form.dataRetorno.value : null,
-    };
+    const formData = new FormData(form);
 
     try {
       const response = await fetch(WEB_APP_URL, {
         method: 'POST',
+        body: JSON.stringify(Object.fromEntries(formData)),
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
       });
-
-      if (!response.ok) throw new Error('Erro ao conectar ao servidor.');
 
       const result = await response.json();
       alert(result.message);
-
-      // Exibir botão de download do PDF, se disponível
-      const downloadButton = document.getElementById('downloadPdfButton');
       if (result.pdfUrl) {
-        downloadButton.style.display = 'block';
-        downloadButton.onclick = () => window.open(result.pdfUrl, '_blank');
+        window.open(result.pdfUrl, '_blank');
       }
     } catch (error) {
       alert('Erro: ' + error.message);
